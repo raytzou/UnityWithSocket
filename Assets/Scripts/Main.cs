@@ -10,7 +10,7 @@ using UnityEngine;
 public class Main
 {
     private static Main _singleton;
-    private static IPHostEntry _hostEntry;
+    public static IPHostEntry _hostEntry;
     private static IPAddress _ipAddress;
     private static IPEndPoint _ipEndPoint;
 

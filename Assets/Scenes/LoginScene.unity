@@ -267,8 +267,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Username:'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 901859d632be6d348a14dc1905a68559, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 901859d632be6d348a14dc1905a68559, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -737,7 +737,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1353332697}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 77860dde0b10697439c7b075dd3622cd, type: 3}
+  m_Script: {fileID: 11500000, guid: 5ab3bb27e86352549bd76ac875c0ecd2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Inputbox: {fileID: 1448393677}
@@ -869,8 +869,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Login
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 901859d632be6d348a14dc1905a68559, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 901859d632be6d348a14dc1905a68559, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1180,8 +1180,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u200B"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 901859d632be6d348a14dc1905a68559, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 901859d632be6d348a14dc1905a68559, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1336,8 +1336,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Enter text...
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 901859d632be6d348a14dc1905a68559, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 901859d632be6d348a14dc1905a68559, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
