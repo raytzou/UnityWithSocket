@@ -38,19 +38,19 @@ public class ChatController : MonoBehaviour
         {
             OpenChatToggler = !OpenChatToggler;
 
+            if (!string.IsNullOrEmpty(InputBox.text))
+                OnSubmitMessage();
+
             if (OpenChatToggler)
             {
                 GetComponent<CanvasGroup>().alpha = 1f;
-                InputBox.Select();
+                InputBox.ActivateInputField();
             }
             else
                 GetComponent<CanvasGroup>().alpha = 0f;
-
-            if (!string.IsNullOrEmpty(InputBox.text))
-                await OnSubmitMessage();
         }
 
-        if(Input.GetKeyDown(KeyCode.I)) Main.GetSingleton.PrintNetInfo();
+        if(Input.GetKeyDown(KeyCode.I) && !OpenChatToggler) Main.GetSingleton.PrintNetInfo();
 
 
         await Main.GetSingleton.ConnectToServer();
@@ -69,7 +69,7 @@ public class ChatController : MonoBehaviour
         }
     }
 
-    public async Task OnSubmitMessage()
+    public async void OnSubmitMessage()
     {
         if (string.IsNullOrEmpty(InputBox.text)) return; // prevent Button onClick() with no text
 
@@ -80,7 +80,7 @@ public class ChatController : MonoBehaviour
 
         OpenChatToggler = true;
         InputBox.text = "";
-        //InputBox.Select();
+        //InputBox.ActivateInputField();
     }
 
     private void UpdateChatBox()
