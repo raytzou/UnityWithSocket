@@ -39,7 +39,7 @@ public class ChatController : MonoBehaviour
             OpenChatToggler = !OpenChatToggler;
 
             if (!string.IsNullOrEmpty(InputBox.text))
-                OnSubmitMessage();
+                await OnSubmitMessage();
 
             if (OpenChatToggler)
             {
@@ -69,9 +69,9 @@ public class ChatController : MonoBehaviour
         }
     }
 
-    public async void OnSubmitMessage()
+    public async Task OnSubmitMessage()
     {
-        if (string.IsNullOrEmpty(InputBox.text)) return; // prevent Button onClick() with no text
+        //if (string.IsNullOrEmpty(InputBox.text)) return; // prevent Button onClick() with no text
 
         ChatMessageQueue.Enqueue(InputBox.text);
         await Main.GetSingleton.SendMessage(InputBox.text);
