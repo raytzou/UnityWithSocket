@@ -14,30 +14,29 @@ public class Main
     private static IPHostEntry _hostEntry;
     private static IPAddress _addressList;
     private static IPEndPoint _endPoint;
-    private static Socket _client;
-    private static int _disconnectedTimes = 0;
+    private static TcpClient _client;
+    private static NetworkStream _stream;
 
     public string Username { get; set; } = "Unknown";
     public bool IsOnline { get; set; }
 
-    public static Main GetSingleton 
-    { 
-        get => _singleton ??= new Main(_hostEntry, _addressList, _endPoint); 
-        set => _singleton = value; 
+    public static Main GetSingleton
+    {
+        get => _singleton ??= new Main(_hostEntry, _addressList, _endPoint);
+        set => _singleton = value;
     }
-    
+
     private Main(IPHostEntry hostEntry, IPAddress ipAddress, IPEndPoint ipEndPoint)
     {
-        hostEntry = Dns.GetHostEntry(Dns.GetHostName());
+        hostEntry = Dns.GetHostEntry("127.0.0.1");
         _hostEntry = hostEntry;
         ipAddress = _hostEntry.AddressList[0];
         _addressList = ipAddress;
         ipEndPoint = new(ipAddress, 8787);
         _endPoint = ipEndPoint;
+        _client = new();
 
-        _client = new(_endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
-        //ReceiveMessage();
+        //ConnectToServer();
     }
 
     public void PrintNetInfo()
@@ -47,56 +46,72 @@ public class Main
         Debug.Log("Client Name: " + Username);
     }
 
-    public async Task ConnectToServer() // calling void but not Task function in Unity looks safer in async programming, but not normal
+    public void ConnectToServer()
     {
-        //_client.Blocking = false; // God knows how I found this shit
+        if (_client.Connected) return;
+
         try
         {
-            //Debug.LogError(_client.Connected);
-            if (_client.Connected) return;
-
-            await _client.ConnectAsync(_endPoint); // Socket.ConnectAsync is a blocking call, use on your own risk
-            IsOnline = _client.Connected;
+            _client.Connect(_endPoint);
+            _stream = _client.GetStream();
+            IsOnline = true;
+            Debug.Log("client is online");
         }
-        catch (Exception ex) 
+        catch (Exception ex)
         {
-            //Debug.LogError(ex.Message);
+            Debug.LogError(ex.Message);
+            IsOnline = false;
+            _client.Close();
+            _client = new();
         }
     }
 
-    public async Task SendMessage(string message)
+    public void SendMessage(string message)
     {
         if (string.IsNullOrEmpty(message)) return;
 
         var msgBytes = Encoding.UTF8.GetBytes(Username + "$" + message + "$" + _endPoint.Address);
-        //_client.Blocking = false;
-
-        if (IsOnline)
-            await _client.SendAsync(msgBytes, SocketFlags.None);
+        _stream.Write(msgBytes, 0, msgBytes.Length);
+        /*if (IsOnline)
+            _stream.Write(msgBytes, 0, msgBytes.Length);
         else
-            Debug.LogError("Can't send a message, client is not online");
+            Debug.LogError("Can't send a message, client is not online");*/
         //client.Close();
     }
 
-    public async Task ReceiveMessage() // Wish I would know what I'm doing hmm.....
+    public async Task<string> ReceiveMessage()
     {
         if (!IsOnline)
         {
             Debug.LogError("Client is disconnected, please check server side or restart game!");
-            return;
+            return "";
         }
 
         try
         {
             var buffer = new byte[256];
-            var receiver = await _client.ReceiveAsync(buffer, SocketFlags.None);
+            var receiver = await _stream.ReadAsync(buffer);
             var decoder = Encoding.UTF8.GetString(buffer, 0, receiver);
 
-            Debug.Log(decoder);
+            //Debug.Log(decoder);
+
+            var message = decoder.Split("$");
+
+            if (message[0] == "Ack")
+            {
+                Debug.Log(message[2]);
+            }
+            else
+            {
+                return decoder;
+            }
+
+            return "";
         }
-        catch
+        catch(Exception ex)
         {
-            // I hate my life
+            Debug.LogError(ex.Message);
+            return null;
         }
     }
 }
