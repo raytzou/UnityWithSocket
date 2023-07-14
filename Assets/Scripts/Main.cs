@@ -7,36 +7,30 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEditor.PackageManager;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 public class Main
 {
     private static Main _singleton;
-    private static IPHostEntry _hostEntry;
-    private static IPAddress _addressList;
     private static IPEndPoint _endPoint;
     private static TcpClient _client;
     private static NetworkStream _stream;
+    public int RetryTime = 0;
 
     public string Username { get; set; } = "Unknown";
     public bool IsOnline { get; set; }
 
     public static Main GetSingleton
     {
-        get => _singleton ??= new Main(_hostEntry, _addressList, _endPoint);
+        get => _singleton ??= new Main(_endPoint);
         set => _singleton = value;
     }
 
-    private Main(IPHostEntry hostEntry, IPAddress ipAddress, IPEndPoint ipEndPoint)
+    private Main(IPEndPoint endPoint)
     {
-        hostEntry = Dns.GetHostEntry("127.0.0.1");
-        _hostEntry = hostEntry;
-        ipAddress = _hostEntry.AddressList[0];
-        _addressList = ipAddress;
-        ipEndPoint = new(ipAddress, 8787);
-        _endPoint = ipEndPoint;
+        endPoint = new(IPAddress.Parse("127.0.0.1"), 8787);
+        _endPoint = endPoint;
         _client = new();
-
-        //ConnectToServer();
     }
 
     public void PrintNetInfo()
@@ -48,21 +42,27 @@ public class Main
 
     public void ConnectToServer()
     {
-        if (_client.Connected) return;
+        if (IsOnline) return;
+        if(RetryTime >= 5)
+        {
+            Debug.LogError("Cannot connect to server >_O");
+            return;
+        }
 
         try
         {
             _client.Connect(_endPoint);
             _stream = _client.GetStream();
+            //Debug.LogWarning("client: " + (_client is null) + " stream: " + (_stream is null) + " endpoint: " + (_endPoint is null)); // f f f, idk why
             IsOnline = true;
-            Debug.Log("client is online");
         }
         catch (Exception ex)
         {
+            //Debug.LogWarning("client: " + (_client is null) + " stream: " + (_stream is null) + " endpoint: " + (_endPoint is null)); // f t f
             Debug.LogError(ex.Message);
             IsOnline = false;
-            _client.Close();
-            _client = new();
+            _stream?.Close();
+            RetryTime++;
         }
     }
 
@@ -72,46 +72,39 @@ public class Main
 
         var msgBytes = Encoding.UTF8.GetBytes(Username + "$" + message + "$" + _endPoint.Address);
         _stream.Write(msgBytes, 0, msgBytes.Length);
-        /*if (IsOnline)
-            _stream.Write(msgBytes, 0, msgBytes.Length);
-        else
-            Debug.LogError("Can't send a message, client is not online");*/
-        //client.Close();
     }
 
-    public async Task<string> ReceiveMessage()
+    // https://learn.microsoft.com/en-us/dotnet/csharp/asynchronous-programming/cancel-an-async-task-or-a-list-of-tasks
+    public async Task<string> ReceiveMessage() // async Task, use it on your own risk
     {
-        if (!IsOnline)
-        {
-            Debug.LogError("Client is disconnected, please check server side or restart game!");
-            return "";
-        }
-
         try
         {
             var buffer = new byte[256];
             var receiver = await _stream.ReadAsync(buffer);
             var decoder = Encoding.UTF8.GetString(buffer, 0, receiver);
 
-            //Debug.Log(decoder);
+            var msgArray = decoder.Split("$");
 
-            var message = decoder.Split("$");
-
-            if (message[0] == "Ack")
+            if (msgArray.Length >= 3)
             {
-                Debug.Log(message[2]);
-            }
-            else
-            {
-                return decoder;
-            }
+                Debug.LogWarning("decoder: " + decoder);
+                if (msgArray[0] == "Msg")
+                    return decoder;
+                else
+                    Debug.Log(msgArray[2]);
 
-            return "";
+                return string.Empty;
+
+            }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Debug.LogError(ex.Message);
-            return null;
+            //Debug.LogWarning("client: " + (_client is null) + " stream: " + (_stream is null) + " endpoint: " + (_endPoint is null)); // f f f
+            IsOnline = false;
+            return string.Empty;
         }
+
+        return string.Empty;
     }
 }

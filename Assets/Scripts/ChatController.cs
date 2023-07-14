@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine.UI;
 using System.Threading.Tasks;
 using System;
+using System.Threading;
 
 public class ChatController : MonoBehaviour
 {
@@ -45,7 +46,7 @@ public class ChatController : MonoBehaviour
             if (OpenChatToggler)
             {
                 GetComponent<CanvasGroup>().alpha = 1f;
-                InputBox.Select();
+                InputBox.ActivateInputField();
             }
             else
                 GetComponent<CanvasGroup>().alpha = 0f;
@@ -54,7 +55,8 @@ public class ChatController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.I)) Main.GetSingleton.PrintNetInfo();
 
 
-        Main.GetSingleton.ConnectToServer();
+        if (Main.GetSingleton.RetryTime < 5)
+            Main.GetSingleton.ConnectToServer();
         //Debug.LogError(Main.GetSingleton.IsOnline);
 
         if (Main.GetSingleton.IsOnline)
@@ -63,6 +65,7 @@ public class ChatController : MonoBehaviour
             SignalTextBox.text = "Status: Online";
 
             _message = await Main.GetSingleton.ReceiveMessage();
+        
             if (!string.IsNullOrEmpty(_message))
             {
                 ChatMessageQueue.Enqueue(_message);
@@ -73,6 +76,7 @@ public class ChatController : MonoBehaviour
         {
             Signal.GetComponent<Image>().color = Color.red;
             SignalTextBox.text = "Status: Offline";
+            //Application.Quit();
         }
     }
 
@@ -97,10 +101,13 @@ public class ChatController : MonoBehaviour
         {
             foreach (string message in ChatMessageQueue)
             {
+                //if()
                 var msgArray = message.Split("$");
+                // Message.Category$DateTime.Now$Context
+
                 if (msgArray[0] == "Msg")
-                    TextBox.text += "\n" + msgArray[1] + ":" + msgArray[2];
-                else
+                    TextBox.text += "\n" + msgArray[1] + ": " + msgArray[2];
+                else if (msgArray[0] != "Msg" && msgArray[0] != "Ack")
                     TextBox.text += "\n" + Main.GetSingleton.Username + ": " + message;
             }
         }
